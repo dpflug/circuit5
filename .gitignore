@@ -1,0 +1,9 @@
+*~
+*.swp
+\#*#
+.#*
+config/awesome/theme/wallpapers/*
+vim/.netrwhist
+vim/bundle
+bin/*
+emacs.d/*
