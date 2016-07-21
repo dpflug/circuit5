@@ -5,9 +5,9 @@
 # Likely won't last that long, but affected by the year 2038 problem.
 
 setmail() {
-    # Called with username to email to
+    # Called with username
     # TODO
-    #### YOU PROBABLY NEED TO CHANGE THIS ####
+    #### YOU NEED TO CHANGE THIS ####
     echo "User: $1"
     #sed "s/helpdesk-usa:.*/helpdesk-usa: $user/"
     #newaliases
@@ -16,7 +16,7 @@ setmail() {
 
 SHIFT_CHANGE=1230
 DESK_JOCKEYS=(
-    "court_technology_department"
+    "court_technology_department" # Who to send it to by default
     "reckelberry"
     "jkidd"
     "broberts"
@@ -35,12 +35,33 @@ DESK_JOCKEYS=(
 
 ##################################################
 
-WEEK=$(($(date +%s) / 604800)) # Get current week from epoch
-# I'm doing the modulo 6 to get 0s on the weekends to trigger default behavior
-DAY=$(($(date +%w) % 6 * (WIC + 1))) # Day of cycle
-WEEKDAY_FROM_EPOCH=$(( (DAY==0)?0:(WEEK * 5 + DAY)))
-SHIFT_OFFSET=$(( ($(date +%H%M) <= SHIFT_CHANGE)?0:1 ))
-UNADJUSTED_SHIFT=$(( WEEKDAY_FROM_EPOCH % ((${#DESK_JOCKEYS[@]}-1) / 2) ))
-SHIFT=$(( (DAY==0)?0:(UNADJUSTED_SHIFT * 2 + 1 + SHIFT_OFFSET) ))
+set_vars() {
+    # Two shifts/day, minus one default recipient
+    SHIFT_COUNT=$(( (${#DESK_JOCKEYS[@]} - 1) / 2))
+    # Epoch was a Thursday, so add 3 days to make it Sunday, then divide by seconds in a week
+    WEEK=$((($(date +%s --date="$1") - 259200) / 604800))
+    # I'm doing the modulo 6 to get 0s on the weekends to trigger default behavior
+    DOW=$(($(date +%w --date="$1") % 6))
+    if [ "$DOW" -eq 0 ] ; then
+	# Weekend; use default
+	SHIFT=0
+    else
+	DAY=$(( $(date +%w --date="$1") + (WEEK % SHIFT_COUNT) * 5 )) # Day of cycle
+	SHIFT_OFFSET=$(( ($(date +%k%M --date="$1") < SHIFT_CHANGE)?0:1 ))
+	SHIFT=$(( (DAY % SHIFT_COUNT) * 2 + 1 + SHIFT_OFFSET ))
+    fi
+}
 
-setmail ${DESK_JOCKEYS[$SHIFT]}
+if [ "$1" == "test" ] ; then
+    for d in {-5..5} ; do
+	for t in "0000" "$SHIFT_CHANGE"; do
+	    when="+ $d days $t"
+	    set_vars "$when"
+	    
+	    echo "$(date --date="$when")" "-- ${DESK_JOCKEYS[$SHIFT]}"
+	done
+    done
+else
+    set_vars "$(date)"
+    setmail "${DESK_JOCKEYS[$SHIFT]}"
+fi
