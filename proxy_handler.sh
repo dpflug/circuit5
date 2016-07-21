@@ -1,5 +1,6 @@
-#!/usr/bin/zsh
-SECOND_OCTET="${${IP%.*.*}#*.}"
+#!/bin/bash
+IPHALF="${IP%.*.*}"
+SECOND_OCTET="${IPHALF#*.}"
 log="/home/dpflug/CONNECT_C5"
 
 if [ "$SSID" = "C5" ] || [ "$SSID" = "C5ENT" ] ; then
