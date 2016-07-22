@@ -1,45 +1,42 @@
 #!/bin/bash
-IPHALF="${IP%.*.*}"
-SECOND_OCTET="${IPHALF#*.}"
-log="/home/dpflug/CONNECT_C5"
+# IP hasn't been available lately?
+#IPHALF="${IP%.*.*}"
+#SECOND_OCTET="${IPHALF#*.}"
 
-if [ "$SSID" = "C5" ] || [ "$SSID" = "C5ENT" ] ; then
-    su - dpflug /home/dpflug/bin/connect_c5.sh || true
-fi
+log="/home/dpflug/CONNECT_C5"
 
 { echo "=======";
   echo "$SSID";
   echo "$ACTION";
   date; } >> $log
 
-if [ "$ACTION" = "LOST" ] || [ "$ACTION" = "DISCONNECT" ] ; then
-    # Then profile no longer matters and we should start polipo
-    Profile="PASS"
+if [ "$SSID" = "C5" ] || [ "$SSID" = "C5ENT" ] ; then
+    su - dpflug /home/dpflug/bin/connect_c5.sh || true
+    SECOND_OCTET="$(ip a | grep -A2 'state UP' | tail -n1 | awk '{ print $2 }' | cut -f1 -d'/' | cut -f2 -d'.')"
+    echo "Starting octet match." >> $log
+    { echo -n "Second octet: ";
+      echo "$SECOND_OCTET"; } >> $log
+    #if [ "$Profile" = "wlp3s0-C5" ] ||
+    #       [ "$Profile" = "wlp3s0-C5ENT" ] ||
+    #       [ "$Profile" = "eno1-dhcp" ] && [ "${IP%.*.*.*}" = "10" ] ; then
+    if [ "$SECOND_OCTET" = 128 ] ; then
+	# In Citrus
+	COUNTY="cit"
+    elif [ "$SECOND_OCTET" = 129 ] ; then
+	# In Hernando
+	COUNTY="her"
+    elif [ "$SECOND_OCTET" = 130 ] ; then
+	# In Lake
+	COUNTY="lak"
+    elif [ "$SECOND_OCTET" = 131 ] ; then
+	# In Marion
+	COUNTY="mar"
+    elif [ "$SECOND_OCTET" = 132 ] ; then
+	# In Sumter
+	COUNTY="sum"
+    fi
+    #fi
 fi
-
-echo "Starting octet match." >> $log
-{ echo -n "Second octet: ";
-  echo "$SECOND_OCTET"; } >> $log
-#if [ "$Profile" = "wlp3s0-C5" ] ||
-#       [ "$Profile" = "wlp3s0-C5ENT" ] ||
-#       [ "$Profile" = "eno1-dhcp" ] && [ "${IP%.*.*.*}" = "10" ] ; then
-if [ "$SECOND_OCTET" = 128 ] ; then
-    # In Citrus
-    COUNTY="cit"
-elif [ "$SECOND_OCTET" = 129 ] ; then
-    # In Hernando
-    COUNTY="her"
-elif [ "$SECOND_OCTET" = 130 ] ; then
-    # In Lake
-    COUNTY="lak"
-elif [ "$SECOND_OCTET" = 131 ] ; then
-    # In Marion
-    COUNTY="mar"
-elif [ "$SECOND_OCTET" = 132 ] ; then
-    # In Sumter
-    COUNTY="sum"
-fi
-#fi
 
 if [ "$COUNTY" ] ; then
     { echo -n "Detected county: ";
