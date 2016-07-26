@@ -11,10 +11,9 @@ log="/home/dpflug/CONNECT_C5"
 
 if [ "$SSID" = "C5" ] || [ "$SSID" = "C5ENT" ] ; then
     su - dpflug /home/dpflug/bin/connect_c5.sh || true
-    SECOND_OCTET="$(ip a | grep -oP '\b10.1\d{2,3}.\d{1,3}.\d{1,3}(?=/)')"
+    SECOND_OCTET="$(ip a | grep -oP '(?<=\b10.)1\d{2,3}(?=.\d{1,3}.\d{1,3}/)')"
     echo "Starting octet match." >> $log
-    { echo -n "Second octet: ";
-      echo "$SECOND_OCTET"; } >> $log
+    echo "Second octet: $SECOND_OCTET" >> $log
     #if [ "$Profile" = "wlp3s0-C5" ] ||
     #       [ "$Profile" = "wlp3s0-C5ENT" ] ||
     #       [ "$Profile" = "eno1-dhcp" ] && [ "${IP%.*.*.*}" = "10" ] ; then
