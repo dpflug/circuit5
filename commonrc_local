@@ -38,14 +38,18 @@ _cmount() {
     sudo mount -t cifs "$1" "$2" -o _netdev,credentials="$3"
 }
 
+_credfile() {
+    pass show Work | sed -e'1s/^/password=/' -e's/: /=/'
+}
+
 cmount() {
     mkdir -p "${HOME}/c5shares/$1"
-    _cmount "//$1/c$" "${HOME}/c5shares/$1" =(pass show Work | sed -e'1s/^/password=/' -e's/: /=/')
+    _cmount "//$1/c$" "${HOME}/c5shares/$1" =(_credfile)
     cd "${HOME}/c5shares/$1"
 }
 
 cfiles() {
-    _cmount "//circuit5.org/files" "${HOME}/c5shares/files" =(pass show Work | sed -e'1s/^/password=/' -e's/: /=/')
+    _cmount "//circuit5.org/files" "${HOME}/c5shares/files" =(_credfile)
     cd "${HOME}/c5shares/files"
 }
 
@@ -72,7 +76,7 @@ findmount() {
     for machine in $machines ; do
 	mkdir -p "${HOME}/c5shares/$machine"
 	echo "Mounting ${machine}'s C:\\"
-	_cmount "//${machine}/c$" "${HOME}/c5shares/${machine}" =(pass show Work | sed -e'1s/^/password=/' -e's/: /=/')
+	_cmount "//${machine}/c$" "${HOME}/c5shares/${machine}" =(_credfile)
 	cd "${HOME}/c5shares/${machine}"
 	ls
     done
