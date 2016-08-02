@@ -17,20 +17,20 @@ if [ "$SSID" = "C5" ] || [ "$SSID" = "C5ENT" ] ; then
     #if [ "$Profile" = "wlp3s0-C5" ] ||
     #       [ "$Profile" = "wlp3s0-C5ENT" ] ||
     #       [ "$Profile" = "eno1-dhcp" ] && [ "${IP%.*.*.*}" = "10" ] ; then
-    if [ "$SECOND_OCTET" = 128 ] ; then
+    if [ "$SECOND_OCTET" -eq 128 ] ; then
 	# In Citrus
 	COUNTY="cit"
-    elif [ "$SECOND_OCTET" = 129 ] ; then
+    elif [ "$SECOND_OCTET" -eq 129 ] ; then
 	# In Hernando
 	COUNTY="her"
-    elif [ "$SECOND_OCTET" = 130 ] ; then
+    elif [ "$SECOND_OCTET" -eq 130 ] ; then
 	# In Lake
 	COUNTY="lak"
-    elif [ "$SECOND_OCTET" = 131 ] ; then
+    elif [ "$SECOND_OCTET" -eq 131 ] ; then
 	# In Marion
 	COUNTY="mar"
-    elif [ "$SECOND_OCTET" = 132 ] ; then
-	# In Sumter
+    elif [ "$SECOND_OCTET" -eq 132 ] ; then
+	# In Sumter	
 	COUNTY="sum"
     fi
     #fi
