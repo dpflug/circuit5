@@ -34,51 +34,25 @@ export _JAVA_AWT_WM_NONREPARENTING=1
 eval "$(pyenv init -)"
 eval "$(pyenv virtualenv-init -)"
 
-_cmount() {
-    sudo mount -t cifs "$1" "$2" -o _netdev,credentials="$3"
-}
-
-_credfile() {
-    pass show Work | sed -e'1s/^/password=/' -e's/: /=/'
-}
-
-cmount() {
-    mkdir -p "${HOME}/c5shares/$1"
-    _cmount "//$1/c$" "${HOME}/c5shares/$1" =(_credfile)
-    cd "${HOME}/c5shares/$1"
-}
-
-cfiles() {
-    _cmount "//circuit5.org/files" "${HOME}/c5shares/files" =(_credfile)
-    cd "${HOME}/c5shares/files"
-}
-
 vpn() {
     sudo vpnc --gateway marvpn.circuit5.org --id c5users
     sudo sed -i.bk '/^Upstream/s/[a-z]*proxy/marproxy/' /etc/tinyproxy/tinyproxy.conf
     sudo systemctl stop polipo tinyproxy ; sleep 2 ; sudo systemctl start tinyproxy
+    sudo sed -i.bk 's/#include/include/' /etc/unbound/unbound.conf
+    sudo systemctl restart unbound
 }
 
 vpnstop() {
     sudo pkill vpnc
     sudo systemctl stop tinyproxy polipo ; sleep 2 ; sudo systemctl start polipo
+    sudo sed -i.bk 's/ include/ #include/' /etc/unbound/unbound.conf
+    sudo systemctl restart unbound
 }
 
 cmachine() {
     for cuser in "$@" ; do
 	fping -aqt 100 -i10 {cit,her,lak,mar,sum}{jc,ll,jl}{dk,lp,tb,vm}"${cuser:0:7}" \
 	      {cit,her,lak,mar,sum}{jc,ll,jl}{dk,lp,tb,vm}"${cuser:0:6}"{1..5}
-    done
-}
-
-findmount() {
-    machines="$(cmachine "$1")"
-    for machine in $machines ; do
-	mkdir -p "${HOME}/c5shares/$machine"
-	echo "Mounting ${machine}'s C:\\"
-	_cmount "//${machine}/c$" "${HOME}/c5shares/${machine}" =(_credfile)
-	cd "${HOME}/c5shares/${machine}"
-	ls
     done
 }
 
