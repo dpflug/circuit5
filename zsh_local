@@ -3,7 +3,7 @@ _cmount() {
 }
 
 _credfile() {
-    pass show Work | sed -e'1s/^/password=/' -e's/: /=/'
+    pass show Work | sed 's/: /=/; 1s/^/password=/'
 }
 
 cmount() {
