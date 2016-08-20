@@ -23,6 +23,9 @@ disable_proxy(){
 
 enable_proxy
 
+# Start syncthing (theoretically, ~/Private is mounted by now)
+pgrep syncthing > /dev/null || sudo systemctl start syncthing@dpflug
+
 # Set up Android SDK
 ANDROID_HOME="${HOME}/projects/AndroidSDK"
 export PATH="$PATH:$ANDROID_HOME/tools/:$ANDROID_HOME/platform-tools/"
@@ -36,17 +39,21 @@ eval "$(pyenv virtualenv-init -)"
 
 vpn() {
     sudo vpnc --gateway marvpn.circuit5.org --id c5users
-    sudo sed -i.bk '/^Upstream/s/[a-z]*proxy/marproxy/' /etc/tinyproxy/tinyproxy.conf
-    sudo systemctl stop polipo tinyproxy ; sleep 2 ; sudo systemctl start tinyproxy
     sudo sed -i.bk 's/#include/include/' /etc/unbound/unbound.conf
-    sudo systemctl restart unbound
+    sudo sed -i.bk -e "/cache_peer/s/[a-z]*proxy/${COUNTY}proxy/" \
+    	 -e 's/#cache_peer/cache_peer/' \
+	 -e 's/#never_direct/never_direct/' \
+	 /etc/squid/squid.conf
+    sudo systemctl reload unbound squid
 }
 
 vpnstop() {
     sudo pkill vpnc
-    sudo systemctl stop tinyproxy polipo ; sleep 2 ; sudo systemctl start polipo
+    sudo sed -i.bk -e 's/^cache_peer/#cache_peer/' \
+    	 -e 's/^never_direct/#never_direct/' \
+	 /etc/squid/squid.conf
     sudo sed -i.bk 's/ include/ #include/' /etc/unbound/unbound.conf
-    sudo systemctl restart unbound
+    sudo systemctl reload unbound squid
 }
 
 cmachine() {

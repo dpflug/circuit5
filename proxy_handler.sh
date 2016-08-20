@@ -38,16 +38,16 @@ fi
 
 if [ "$COUNTY" ] ; then
     sed -i.bk 's/#include/include/' /etc/unbound/unbound.conf
-    systemctl reload unbound
-    sed -i.bk "/^Upstream/s/[a-z]*proxy/${COUNTY}proxy/" /etc/tinyproxy/tinyproxy.conf
-    systemctl stop polipo tinyproxy
-    sleep 2
-    systemctl start tinyproxy
+    sed -i.bk -e "/cache_peer/s/[a-z]*proxy/${COUNTY}proxy/" \
+	-e 's/#cache_peer/cache_peer/' \
+	-e 's/#never_direct/never_direct/' \
+	/etc/squid/squid.conf
+    systemctl reload unbound squid
 else
     echo "No county detected." >> $log
     sed -i.bk 's/ include/ #include/' /etc/unbound/unbound.conf
-    systemctl reload unbound
-    systemctl stop polipo tinyproxy
-    sleep 2
-    systemctl start polipo
+    sed -i.bk -e 's/^cache_peer/#cache_peer/' \
+	-e 's/^never_direct/#never_direct/' \
+	/etc/squid/squid.conf
+    systemctl reload unbound squid
 fi
