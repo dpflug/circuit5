@@ -9,7 +9,7 @@ log="/home/dpflug/CONNECT_C5"
   echo "$ACTION - $SSID";
   date; } >> $log
 
-if [ "$SSID" = "C5" ] || [ "$SSID" = "C5ENT" ] ; then
+if [ "$SSID" = "C5" ] || [ "$SSID" = "C5ENT" ] || [ "$SSID" = "" ] ; then
     su - dpflug /home/dpflug/bin/connect_c5.sh || true
     SECOND_OCTET="$(ip a | grep -oP '(?<=\b10.)1\d{2,3}(?=.\d{1,3}.\d{1,3}/)' | head -n1)"
     echo "Starting octet match." >> $log
