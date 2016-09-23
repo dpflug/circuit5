@@ -64,3 +64,4 @@ cmachine() {
 }
 
 alias c5passes="cfiles && keepassx2 && cd && sudo umount ~/c5shares/files"
+alias t=task
