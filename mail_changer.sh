@@ -21,7 +21,7 @@ SHIFT_CHANGE=1230
 DESK_JOCKEYS=(
     # First option is who to send to by default
     # We default to the entire Court Tech department
-    "court_technology_department"
+    "allcourttech"
     "reckelberry"
     "jkidd"
     "broberts"
