@@ -1,22 +1,27 @@
 #!/bin/bash
 # Author: David Pflug (dpflug@circuit5.org)
-# Intended to be used via cron at midnight and 12:30, but can be run any time
+# Intended to be used via cron at 12:30 AM and PM, but can be run any time
 # Assumes 2 shifts per day
-# Likely won't last that long, but affected by the year 2038 problem.
 
 setmail() {
     # Called with username
-    # TODO
-    #### YOU NEED TO CHANGE THIS ####
-    echo "User: $1"
+
     #sed "s/helpdesk-usa:.*/helpdesk-usa: $user/"
     #newaliases
     #/etc/init.d/postfix reload
+
+    if [ "$DEBUG" == 1 ] ; then
+	echo "User: $1"
+    else
+	/adm/bin/rtonduty_change.sh "$1"
+    fi
 }
 
 SHIFT_CHANGE=1230
 DESK_JOCKEYS=(
-    "court_technology_department" # Who to send it to by default
+    # First option is who to send to by default
+    # We default to the entire Court Tech department
+    "court_technology_department"
     "reckelberry"
     "jkidd"
     "broberts"
@@ -35,6 +40,55 @@ DESK_JOCKEYS=(
 
 ##################################################
 
+ARGS=$(getopt -o "hdto::" -l "help,debug,test,offset::" -n "$0" -- "$@");
+echo "$ARGS"
+eval set -- "$ARGS"
+OFFSET=0
+
+while true; do
+    case "$1" in
+	-h|--help)
+	    shift
+	    echo "Usage: mail_changer.sh [-t] [-oOFFSET]"
+	    echo -e "  Arguments:"
+	    echo -e "    -t, --test\t\t\tOutput a 10 day period (optionally, around offset) for testing."
+	    echo -e "    -oOFFSET, --offset=OFFSET\tNumber of 12 hour periods (positive or negative) to offset."
+	    exit
+	    ;;
+	-d|--debug)
+	    shift
+	    DEBUG=1
+	    ;;
+	-t|--test)
+	    shift
+	    TEST=1
+	    ;;
+	-o|--offset)
+	    shift
+	    # Sanitize input
+	    case "${1#[-+]}" in
+		''|*[!0-9]*)
+		    echo "ERROR: Offset must be an integer."
+		    exit
+		    ;;
+		*)
+		    OFFSET="$1"
+		    ;;
+	    esac
+	    shift
+	    ;;
+	--)
+	    shift
+	    break
+	    ;;
+	*)
+	    echo "Internal error!"
+	    exit
+	    ;;
+    esac
+done
+
+
 set_vars() {
     # Two shifts/day, minus one default recipient
     SHIFT_COUNT=$(( (${#DESK_JOCKEYS[@]} - 1) / 2))
@@ -52,16 +106,14 @@ set_vars() {
     fi
 }
 
-if [ "$1" == "test" ] ; then
-    for d in {-5..5} ; do
-	for t in "0000" "$SHIFT_CHANGE"; do
-	    when="+ $d days $t"
-	    set_vars "$when"
+if [ "$TEST" == 1 ] ; then
+    for i in {-10..10} ; do
+	when="+ $(((OFFSET + i) * 12)) hours"
+	set_vars "$when"
 	    
-	    echo "$(date --date="$when")" "-- ${DESK_JOCKEYS[$SHIFT]}"
-	done
+	echo "$(date --date="$when")" "-- ${DESK_JOCKEYS[$SHIFT]}"
     done
 else
-    set_vars "$(date)"
+    set_vars "+ $((OFFSET * 12)) hours"
     setmail "${DESK_JOCKEYS[$SHIFT]}"
 fi
