@@ -34,6 +34,8 @@ if [ "$SSID" = "C5" ] || [ "$SSID" = "C5ENT" ] || [ "$SSID" = "" ] ; then
 	COUNTY="sum"
     fi
     #fi
+else
+    su - dpflug /home/dpflug/bin/connect_other.sh
 fi
 
 if [ "$COUNTY" ] ; then
