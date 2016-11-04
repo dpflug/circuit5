@@ -10,9 +10,9 @@ setmail() {
     #newaliases
     #/etc/init.d/postfix reload
 
-    if [ "$DEBUG" == 1 ] ; then
-	echo "User: $1"
-    else
+    echo "From: Mail Update Script <dpflug@circuit5.org>"
+    echo "Subject: Setting RT unowned recipient: $1"
+    if [ "$NOOP" != 1 ] ; then
 	/adm/bin/rtonduty_change.sh "$1"
     fi
 }
@@ -41,7 +41,7 @@ DESK_JOCKEYS=(
 
 ##################################################
 
-ARGS=$(getopt -o "hdto::" -l "help,debug,test,offset::" -n "$0" -- "$@");
+ARGS=$(getopt -o "hnto::" -l "help,noop,no-op,test,offset::" -n "$0" -- "$@");
 echo "$ARGS"
 eval set -- "$ARGS"
 OFFSET=0
@@ -56,9 +56,9 @@ while true; do
 	    echo -e "    -oOFFSET, --offset=OFFSET\tNumber of hours (positive or negative) to offset."
 	    exit
 	    ;;
-	-d|--debug)
+	-n|--noop|--no-op)
 	    shift
-	    DEBUG=1
+	    NOOP=1
 	    ;;
 	-t|--test)
 	    shift
