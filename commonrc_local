@@ -38,7 +38,7 @@ eval "$(pyenv init -)"
 eval "$(pyenv virtualenv-init -)"
 
 vpn() {
-    sudo vpnc --gateway marvpn.circuit5.org --id c5users
+    sudo vpnc --gateway marvpn.circuit5.org --id c5users --username dpflug --password-helper /home/dpflug/bin/vpn_helper.sh
     sudo sed -i.bk 's/#include/include/' /etc/unbound/unbound.conf
     sudo sed -i.bk -e "/cache_peer/s/[a-z]*proxy/marproxy/" \
     	 -e 's/#cache_peer/cache_peer/' \
