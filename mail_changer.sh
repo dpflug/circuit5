@@ -10,11 +10,15 @@ setmail() {
     #newaliases
     #/etc/init.d/postfix reload
 
-    echo "From: Mail Update Script <dpflug@circuit5.org>"
-    echo "Subject: Setting RT unowned recipient: $1"
-    if [ "$NOOP" != 1 ] ; then
-	/adm/bin/rtonduty_change.sh "$1"
-    fi
+    ( echo "To: Court Tech <court_technology_department@circuit5.org>"
+      echo "Subject: Setting $1 onduty for RT"
+      echo "From: Mail Update Script <dpflug@circuit5.org>"
+      echo ""
+      if [ "$NOOP" != 1 ] ; then
+	  /adm/bin/rtonduty_change.sh "$1"
+      else
+	  echo "NOOP RUN - No change made"
+      fi ) | sendmail -t
 }
 
 SHIFT_CHANGE=1230
@@ -26,16 +30,16 @@ DESK_JOCKEYS=(
     "reckelberry"
     "jkidd"
     "broberts"
-    "kmorse"
+    "sunderwood"
     "rellerbee"
     "dpflug"
-    "bconley"
+    "kmorse"
     "jkidd"
     "reckelberry"
-    "kmorse"
+    "sunderwood"
     "broberts"
     "rellerbee"
-    "bconley"
+    "kmorse"
     "dpflug"
 )
 
