@@ -1,3 +1,5 @@
+#!/usr/bin/zsh
+
 _cmount() {
     sudo mount -t cifs "$1" "$2" -o _netdev,credentials="$3"
 }
