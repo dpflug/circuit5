@@ -59,7 +59,7 @@ cmachine() {
     done
 }
 
-alias c5passes="cfiles && keepassx2 && cd && sudo umount ~/c5shares/files"
+alias c5passes="cfiles && keepassxc && cd && sudo umount ~/c5shares/files"
 alias tuntun="ssh -fCND araunah"
 alias hws="setxkbmap dvorak ; xmodmap ~/.Xmodmap ; autorandr -c"
 alias night="pkill redshift ; sleep 2 ; redshift -O1000 ; light -S 0.04"
