@@ -39,11 +39,13 @@ else
 fi
 
 if [ "$COUNTY" ] ; then
+    echo "County detected: $COUNTY" >> $log
     sed -i.bk 's/#include/include/' /etc/unbound/unbound.conf
     sed -i.bk -e "/cache_peer/s/[a-z]*proxy/${COUNTY}proxy/" \
 	-e 's/#cache_peer/cache_peer/' \
 	-e 's/#never_direct/never_direct/' \
 	/etc/squid/squid.conf
+    systemctl stop tinc@viakenet
     systemctl reload unbound squid
 else
     echo "No county detected." >> $log
@@ -51,5 +53,6 @@ else
     sed -i.bk -e 's/^cache_peer/#cache_peer/' \
 	-e 's/^never_direct/#never_direct/' \
 	/etc/squid/squid.conf
+    systemctl start tinc@viakenet
     systemctl reload unbound squid
 fi
