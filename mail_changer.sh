@@ -27,21 +27,29 @@ DESK_JOCKEYS=(
     # First option is who to send to by default
     # We default to the entire Court Tech department
     "allcourttech"
-    "reckelberry"
-    "jkidd"
-    "broberts"
-    "sunderwood"
     "rellerbee"
+    "jtaliercio"
+    "kmorse"
+    "reckelberry"
+    "jtaliercio"
+    "sunderwood"
+    "broberts"
+    "jkidd"
+    "jtaliercio"
     "dpflug"
+    "rellerbee"
+    "jtaliercio"
     "kmorse"
-    "jkidd"
     "reckelberry"
+    "jtaliercio"
     "sunderwood"
     "broberts"
-    "rellerbee"
-    "kmorse"
+    "jkidd"
+    "jtaliercio"
     "dpflug"
 )
+# Two shifts/day, 5 days a week, minus default recipient
+SHIFT_WEEKS=$(( (${#DESK_JOCKEYS[@]} - 1) / 10 ))
 
 ##################################################
 
@@ -95,24 +103,25 @@ done
 
 
 set_vars() {
-    # Two shifts/day, minus one default recipient
-    SHIFT_COUNT=$(( (${#DESK_JOCKEYS[@]} - 1) / 2))
-    # Epoch was a Thursday, so add 3 days to make it Sunday, then divide by seconds in a week
-    WEEK=$((($(date +%s --date="$1") - 259200) / 604800))
+    # Week in cycle, using unix epoch as reference point
+    # 259200 = 3 days in seconds
+    # 604800 = 1 week in seconds
+    WEEK=$(( ($(date +%s --date="$1") - 259200) / 604800 % SHIFT_WEEKS ))
     # I'm doing the modulo 6 to get 0s on the weekends to trigger default behavior
-    DOW=$(($(date +%w --date="$1") % 6))
+    DOW=$(( $(date +%w --date="$1") % 6 ))
     if [ "$DOW" -eq 0 ] ; then
 	# Weekend; use default
 	SHIFT=0
+	return
     else
 	# Which day of the cycle is it?
-	DAY=$(( $(date +%w --date="$1") + (WEEK % SHIFT_COUNT) * 5 ))
+	DAY=$(( (WEEK * 5) + DOW ))
 	# Is it after SHIFT_CHANGE?
 	SHIFT_OFFSET=$(( ($(date +%k%M --date="$1") < SHIFT_CHANGE)?0:1 ))
 	# Is it after SHIFTS_END?
 	AFTER_HOURS=$(( ($(date +%k%M --date="$1") < SHIFTS_END)?0:1 ))
 	# Pick our shift from the list
-	SHIFT=$(( AFTER_HOURS?0:((DAY % SHIFT_COUNT) * 2 + 1 + SHIFT_OFFSET) ))
+	SHIFT=$(( AFTER_HOURS?0:DAY * 2 - 1 + SHIFT_OFFSET ))
     fi
 }
 
