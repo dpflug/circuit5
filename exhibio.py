@@ -32,8 +32,8 @@ def parse_judge_schedule():
        row[10] is the floor
     """
     cs = csv.reader(open(r'/home/dpflug/cschedule.csv'), dialect='excel')
-    today = datetime.strptime(cs.next()[6], "%B %d, %Y")
-    cs.next()  # Skip the headers
+    today = datetime.strptime(next(cs)[6], "%B %d, %Y")
+    next(cs)  # Skip the headers
     schedules = {'judges': [],
                  'other': [],
                  '1st_appearances': [],
@@ -53,7 +53,7 @@ def parse_judge_schedule():
             # some other official.
             if out_of_order or r['judge'].lower() < current_judge.lower():
                 out_of_order = True
-                if "y" in raw_input("Is {} a judge?".format(r['judge'])):
+                if "y" in input("Is {} a judge?".format(r['judge'])):
                     current_position = 'judges'
                     sort_judges = True
                 else:
@@ -143,7 +143,7 @@ def generate_table(data, judges):
                                      rows=rows))
 
 def paginate_schedule(sched, per_page):
-    for start in xrange(0, len(sched), per_page):
+    for start in range(0, len(sched), per_page):
         yield sched[start:start + per_page]
 
 def get_event(e):
