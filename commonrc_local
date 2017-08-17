@@ -3,7 +3,7 @@ enable_proxy(){
     export http_proxy="http://localhost:8123"
     export https_proxy="$http_proxy"
     export all_proxy="$http_proxy"
-    export no_proxy="circuit5.org,.local,.,localhost"
+    export no_proxy="circuit5.org,atlantic.net,.local,.,localhost"
     export HTTP_PROXY="$http_proxy"
     export HTTPS_PROXY="$http_proxy"
     export ALL_PROXY="$http_proxy"
@@ -69,3 +69,4 @@ alias qbp="qutebrowser --backend webengine --qt-arg name qutebrowser-personal --
 alias ff="firejail firefox -p default &! exit"
 alias ffp="firejail firefox -p home &! exit"
 alias phonelist="cfiles && zathura ~/c5shares/files/C5\ Share/CIRCUIT\ 5\ MASTER\ PHONE* ; cd - && sudo umount ~/c5shares/files"
+alias sco="ssh -t sco sudo -i"
