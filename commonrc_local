@@ -34,12 +34,12 @@ export PATH="$PATH:$ANDROID_HOME/tools/:$ANDROID_HOME/platform-tools/"
 export _JAVA_AWT_WM_NONREPARENTING=1
 
 vpn() {
-    sudo vpnc --gateway marvpn.circuit5.org --id c5users --username dpflug --password-helper /home/dpflug/bin/vpn_helper.sh
-    sudo sed -i.bk 's/#include/include/' /etc/unbound/unbound.conf
+    sudo vpnc --gateway marvpn.circuit5.org --id c5users --username dpflug --password-helper /home/dpflug/bin/vpn_helper.sh &&
+    sudo sed -i.bk 's/#include/include/' /etc/unbound/unbound.conf &&
     sudo sed -i.bk -e "/cache_peer/s/[a-z]*proxy/marproxy/" \
     	 -e 's/#cache_peer/cache_peer/' \
 	 -e 's/#never_direct/never_direct/' \
-	 /etc/squid/squid.conf
+	 /etc/squid/squid.conf &&
     sudo systemctl reload unbound squid
 }
 
@@ -54,7 +54,7 @@ vpnstop() {
 
 cmachine() {
     for cuser in "$@" ; do
-	fping -aqt 100 -i10 {cit,her,lak,mar,sum}{jc,ll,jl}{dk,lp,tb,vm}"${cuser:0:7}" \
+	sudo fping -aqt 100 -i10 {cit,her,lak,mar,sum}{jc,ll,jl}{dk,lp,tb,vm}"${cuser:0:7}" \
 	      {cit,her,lak,mar,sum}{jc,ll,jl}{dk,lp,tb,vm}"${cuser:0:6}"{1..5}
     done
 }
@@ -70,3 +70,4 @@ alias ff="firejail firefox -p default &! exit"
 alias ffp="firejail firefox -p home &! exit"
 alias phonelist="cfiles && zathura ~/c5shares/files/C5\ Share/CIRCUIT\ 5\ MASTER\ PHONE* ; cd - && sudo umount ~/c5shares/files"
 alias sco="ssh -t sco sudo -i"
+alias nix-search="nix-env -qa | rg -i"
