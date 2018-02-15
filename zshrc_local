@@ -15,7 +15,7 @@ cmount() {
 }
 
 cfiles() {
-    _cmount "//circuit5.org/files" "${HOME}/c5shares/files" =(_credfile)
+    _cmount "//lakjcpfs01/Files" "${HOME}/c5shares/files" =(_credfile)
     cd "${HOME}/c5shares/files"
 }
 
